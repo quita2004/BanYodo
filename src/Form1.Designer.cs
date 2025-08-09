@@ -29,15 +29,15 @@ partial class MainForm
     private void InitializeComponent()
     {
         buttonPanel = new Panel();
-        removeAccountButton = new Button();
         addAccountButton = new Button();
+        clearAllButton = new Button();
         stopAllButton = new Button();
         startAllButton = new Button();
         statusStrip = new StatusStrip();
         statusLabel = new ToolStripStatusLabel();
         websitePanel = new Panel();
-        websiteLabel = new Label();
         websiteComboBox = new ComboBox();
+        websiteLabel = new Label();
         mainTableLayoutPanel = new TableLayoutPanel();
         buttonPanel.SuspendLayout();
         statusStrip.SuspendLayout();
@@ -47,8 +47,8 @@ partial class MainForm
         // 
         // buttonPanel
         // 
-        buttonPanel.Controls.Add(removeAccountButton);
         buttonPanel.Controls.Add(addAccountButton);
+        buttonPanel.Controls.Add(clearAllButton);
         buttonPanel.Controls.Add(stopAllButton);
         buttonPanel.Controls.Add(startAllButton);
         buttonPanel.Dock = DockStyle.Bottom;
@@ -57,44 +57,68 @@ partial class MainForm
         buttonPanel.Size = new Size(1200, 60);
         buttonPanel.TabIndex = 1;
         // 
-        // removeAccountButton
-        // 
-        removeAccountButton.Location = new Point(340, 15);
-        removeAccountButton.Name = "removeAccountButton";
-        removeAccountButton.Size = new Size(120, 30);
-        removeAccountButton.TabIndex = 3;
-        removeAccountButton.Text = "Remove Account";
-        removeAccountButton.UseVisualStyleBackColor = true;
-        removeAccountButton.Click += RemoveAccountButton_Click;
-        // 
         // addAccountButton
         // 
-        addAccountButton.Location = new Point(230, 15);
+        addAccountButton.BackColor = Color.FromArgb(46, 204, 113);
+        addAccountButton.Cursor = Cursors.Hand;
+        addAccountButton.FlatAppearance.BorderSize = 0;
+        addAccountButton.FlatStyle = FlatStyle.Flat;
+        addAccountButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        addAccountButton.ForeColor = Color.White;
+        addAccountButton.Location = new Point(12, 15);
         addAccountButton.Name = "addAccountButton";
         addAccountButton.Size = new Size(100, 30);
         addAccountButton.TabIndex = 2;
         addAccountButton.Text = "Add Account";
-        addAccountButton.UseVisualStyleBackColor = true;
+        addAccountButton.UseVisualStyleBackColor = false;
         addAccountButton.Click += AddAccountButton_Click;
+        // 
+        // clearAllButton
+        // 
+        clearAllButton.BackColor = Color.FromArgb(155, 89, 182);
+        clearAllButton.Cursor = Cursors.Hand;
+        clearAllButton.FlatAppearance.BorderSize = 0;
+        clearAllButton.FlatStyle = FlatStyle.Flat;
+        clearAllButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        clearAllButton.ForeColor = Color.White;
+        clearAllButton.Location = new Point(118, 15);
+        clearAllButton.Name = "clearAllButton";
+        clearAllButton.Size = new Size(100, 30);
+        clearAllButton.TabIndex = 4;
+        clearAllButton.Text = "Clear All";
+        clearAllButton.UseVisualStyleBackColor = false;
+        clearAllButton.Click += ClearAllButton_Click;
         // 
         // stopAllButton
         // 
-        stopAllButton.Location = new Point(120, 15);
+        stopAllButton.BackColor = Color.FromArgb(241, 196, 15);
+        stopAllButton.Cursor = Cursors.Hand;
+        stopAllButton.FlatAppearance.BorderSize = 0;
+        stopAllButton.FlatStyle = FlatStyle.Flat;
+        stopAllButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        stopAllButton.ForeColor = Color.White;
+        stopAllButton.Location = new Point(922, 15);
         stopAllButton.Name = "stopAllButton";
         stopAllButton.Size = new Size(100, 30);
         stopAllButton.TabIndex = 1;
         stopAllButton.Text = "Stop All";
-        stopAllButton.UseVisualStyleBackColor = true;
+        stopAllButton.UseVisualStyleBackColor = false;
         stopAllButton.Click += StopAllButton_Click;
         // 
         // startAllButton
         // 
-        startAllButton.Location = new Point(10, 15);
+        startAllButton.BackColor = Color.FromArgb(52, 152, 219);
+        startAllButton.Cursor = Cursors.Hand;
+        startAllButton.FlatAppearance.BorderSize = 0;
+        startAllButton.FlatStyle = FlatStyle.Flat;
+        startAllButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        startAllButton.ForeColor = Color.White;
+        startAllButton.Location = new Point(1088, 15);
         startAllButton.Name = "startAllButton";
         startAllButton.Size = new Size(100, 30);
         startAllButton.TabIndex = 0;
         startAllButton.Text = "Start All";
-        startAllButton.UseVisualStyleBackColor = true;
+        startAllButton.UseVisualStyleBackColor = false;
         startAllButton.Click += StartAllButton_Click;
         // 
         // statusStrip
@@ -124,15 +148,6 @@ partial class MainForm
         websitePanel.Size = new Size(1194, 44);
         websitePanel.TabIndex = 0;
         // 
-        // websiteLabel
-        // 
-        websiteLabel.AutoSize = true;
-        websiteLabel.Location = new Point(10, 15);
-        websiteLabel.Name = "websiteLabel";
-        websiteLabel.Size = new Size(52, 15);
-        websiteLabel.TabIndex = 0;
-        websiteLabel.Text = "Website:";
-        // 
         // websiteComboBox
         // 
         websiteComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -143,6 +158,15 @@ partial class MainForm
         websiteComboBox.Size = new Size(150, 23);
         websiteComboBox.TabIndex = 1;
         websiteComboBox.SelectedIndexChanged += WebsiteComboBox_SelectedIndexChanged;
+        // 
+        // websiteLabel
+        // 
+        websiteLabel.AutoSize = true;
+        websiteLabel.Location = new Point(10, 15);
+        websiteLabel.Name = "websiteLabel";
+        websiteLabel.Size = new Size(52, 15);
+        websiteLabel.TabIndex = 0;
+        websiteLabel.Text = "Website:";
         // 
         // mainTableLayoutPanel
         // 
@@ -155,7 +179,7 @@ partial class MainForm
         mainTableLayoutPanel.Name = "mainTableLayoutPanel";
         mainTableLayoutPanel.RowCount = 3;
         mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-        mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 280F));
+        mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 230F));
         mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         mainTableLayoutPanel.Size = new Size(1200, 658);
         mainTableLayoutPanel.TabIndex = 0;
@@ -188,7 +212,7 @@ partial class MainForm
     private System.Windows.Forms.Button startAllButton;
     private System.Windows.Forms.Button stopAllButton;
     private System.Windows.Forms.Button addAccountButton;
-    private System.Windows.Forms.Button removeAccountButton;
+    private System.Windows.Forms.Button clearAllButton;
     private System.Windows.Forms.StatusStrip statusStrip;
     private System.Windows.Forms.ToolStripStatusLabel statusLabel;
     private Panel websitePanel;

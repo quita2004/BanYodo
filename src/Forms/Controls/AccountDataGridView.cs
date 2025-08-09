@@ -29,6 +29,7 @@ namespace BanYodo.Forms.Controls
             
             _dataGridView.CellEndEdit += DataGridView_CellEndEdit;
             _dataGridView.CellClick += DataGridView_CellClick;
+            _dataGridView.CellPainting += DataGridView_CellPainting;
             
             this.Controls.Add(_dataGridView);
         }
@@ -39,7 +40,7 @@ namespace BanYodo.Forms.Controls
             var accountCardColumn = new DataGridViewTextBoxColumn
             {
                 Name = "AccountCard",
-                HeaderText = "Account & Card (Username Password Card Month Year CVV)",
+                HeaderText = "Username Password Card Month Year CVV",
                 Width = 500
             };
 
@@ -65,14 +66,24 @@ namespace BanYodo.Forms.Controls
             {
                 Name = "Action",
                 HeaderText = "Action",
-                Width = 100,
+                Width = 80,
                 Text = "Start",
+                UseColumnTextForButtonValue = false
+            };
+
+            // Remove button column
+            var removeColumn = new DataGridViewButtonColumn
+            {
+                Name = "Remove",
+                HeaderText = "Remove",
+                Width = 80,
+                Text = "Remove",
                 UseColumnTextForButtonValue = false
             };
 
             _dataGridView.Columns.AddRange(new DataGridViewColumn[]
             {
-                accountCardColumn, proxyColumn, statusColumn, actionColumn
+                accountCardColumn, proxyColumn, statusColumn, actionColumn, removeColumn
             });
         }
 
@@ -100,6 +111,13 @@ namespace BanYodo.Forms.Controls
             }
         }
 
+        public void ClearAllAccounts()
+        {
+            _accounts.Clear();
+            RefreshData();
+            OnAllAccountsCleared?.Invoke();
+        }
+
         public Account? GetSelectedAccount()
         {
             if (_dataGridView.CurrentCell != null && _dataGridView.CurrentCell.RowIndex >= 0)
@@ -118,6 +136,10 @@ namespace BanYodo.Forms.Controls
                 {
                     row.Cells["Status"].Value = account.Status.ToString();
                     row.Cells["Action"].Value = account.IsRunning ? "Stop" : "Start";
+                    
+                    // Invalidate the action cell to trigger repaint
+                    _dataGridView.InvalidateCell(row.Cells["Action"]);
+                    
                     break;
                 }
             }
@@ -125,7 +147,6 @@ namespace BanYodo.Forms.Controls
 
         private void RefreshData()
         {
-            // get current rowIndex
             var currentRowIndex = _dataGridView.CurrentCell?.RowIndex ?? 0;
             currentRowIndex = currentRowIndex > 0 ? currentRowIndex - 1 : currentRowIndex;
 
@@ -159,63 +180,159 @@ namespace BanYodo.Forms.Controls
                 var row = _dataGridView.Rows[e.RowIndex];
                 var account = row.Tag as Account;
                 
-                if (account != null)
+                // If account is null (new row), create a new account
+                if (account == null)
                 {
-                    var cell = row.Cells[e.ColumnIndex];
-                    var value = cell.Value?.ToString() ?? string.Empty;
-
-                    switch (_dataGridView.Columns[e.ColumnIndex].Name)
-                    {
-                        case "AccountCard":
-                            // Parse combined account and card info
-                            var parts = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                            if (parts.Length >= 6)
-                            {
-                                account.Username = parts[0];
-                                account.Password = parts[1];
-                                account.Card = parts[2];
-                                account.CardMonth = parts[3];
-                                account.CardYear = parts[4];
-                                account.CardCvv = parts[5];
-                            }
-                            else if (parts.Length >= 2)
-                            {
-                                account.Username = parts[0];
-                                account.Password = parts[1];
-                                // Clear card info if not provided
-                                if (parts.Length < 3) account.Card = string.Empty;
-                                if (parts.Length < 4) account.CardMonth = string.Empty;
-                                if (parts.Length < 5) account.CardYear = string.Empty;
-                                if (parts.Length < 6) account.CardCvv = string.Empty;
-                            }
-                            break;
-                        case "Proxy":
-                            account.Proxy = value;
-                            break;
-                    }
-                    
-                    // Trigger save event
-                    OnAccountChanged?.Invoke(account);
+                    account = new Account();
+                    row.Tag = account;
+                    _accounts.Add(account);
                 }
+                
+                var cell = row.Cells[e.ColumnIndex];
+                var value = cell.Value?.ToString() ?? string.Empty;
+
+                switch (_dataGridView.Columns[e.ColumnIndex].Name)
+                {
+                    case "AccountCard":
+                        // Parse combined account and card info
+                        var parts = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length >= 6)
+                        {
+                            account.Username = parts[0];
+                            account.Password = parts[1];
+                            account.Card = parts[2];
+                            account.CardMonth = parts[3];
+                            account.CardYear = parts[4];
+                            account.CardCvv = parts[5];
+                        }
+                        else if (parts.Length >= 2)
+                        {
+                            account.Username = parts[0];
+                            account.Password = parts[1];
+                            // Clear card info if not provided
+                            if (parts.Length < 3) account.Card = string.Empty;
+                            if (parts.Length < 4) account.CardMonth = string.Empty;
+                            if (parts.Length < 5) account.CardYear = string.Empty;
+                            if (parts.Length < 6) account.CardCvv = string.Empty;
+                        }
+                        break;
+                    case "Proxy":
+                        account.Proxy = value;
+                        break;
+                }
+                
+                // Update status and action cells for new account
+                row.Cells["Status"].Value = account.Status.ToString();
+                row.Cells["Action"].Value = account.IsRunning ? "Stop" : "Start";
+                
+                // Invalidate cells to trigger repaint
+                _dataGridView.InvalidateCell(row.Cells["Action"]);
+                _dataGridView.InvalidateCell(row.Cells["Remove"]);
+                
+                // Trigger save event
+                OnAccountChanged?.Invoke(account);
             }
         }
 
         private void DataGridView_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex >= 0 && e.RowIndex >= 0 && 
-                _dataGridView.Columns[e.ColumnIndex].Name == "Action")
+            if (e.ColumnIndex >= 0 && e.RowIndex >= 0)
             {
+                var columnName = _dataGridView.Columns[e.ColumnIndex].Name;
                 var row = _dataGridView.Rows[e.RowIndex];
                 var account = row.Tag as Account;
                 
                 if (account != null)
                 {
-                    OnAccountActionClicked?.Invoke(account);
+                    if (columnName == "Action")
+                    {
+                        OnAccountActionClicked?.Invoke(account);
+                    }
+                    else if (columnName == "Remove")
+                    {
+                        OnAccountRemoveClicked?.Invoke(account);
+                    }
+                }
+            }
+        }
+
+        private void DataGridView_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            // Paint action and remove column buttons
+            if (e.ColumnIndex >= 0 && e.RowIndex >= 0 && e.Graphics != null)
+            {
+                var columnName = _dataGridView.Columns[e.ColumnIndex].Name;
+                
+                if (columnName == "Action" || columnName == "Remove")
+                {
+                    e.Paint(e.CellBounds, DataGridViewPaintParts.All);
+
+                    var account = _dataGridView.Rows[e.RowIndex].Tag as Account;
+                    if (account != null)
+                    {
+                        // Determine button color and text
+                        Color buttonColor;
+                        string buttonText;
+
+                        if (columnName == "Action")
+                        {
+                            if (account.IsRunning)
+                            {
+                                buttonColor = Color.FromArgb(231, 76, 60); // Red for Stop
+                                buttonText = "Stop";
+                            }
+                            else
+                            {
+                                buttonColor = Color.FromArgb(46, 204, 113); // Green for Start
+                                buttonText = "Start";
+                            }
+                        }
+                        else // Remove column
+                        {
+                            buttonColor = Color.FromArgb(231, 76, 60); // Red for Remove
+                            buttonText = "Remove";
+                        }
+
+                        // Create button rectangle with some padding
+                        var buttonRect = new Rectangle(
+                            e.CellBounds.X + 2,
+                            e.CellBounds.Y + 2,
+                            e.CellBounds.Width - 4,
+                            e.CellBounds.Height - 4);
+
+                        // Fill button background
+                        using (var brush = new SolidBrush(buttonColor))
+                        {
+                            e.Graphics.FillRectangle(brush, buttonRect);
+                        }
+
+                        // Draw button border
+                        using (var pen = new Pen(Color.FromArgb(52, 73, 94), 1))
+                        {
+                            e.Graphics.DrawRectangle(pen, buttonRect);
+                        }
+
+                        // Draw button text
+                        using (var font = new Font("Segoe UI", 8F, FontStyle.Bold))
+                        using (var brush = new SolidBrush(Color.White))
+                        {
+                            var textSize = e.Graphics.MeasureString(buttonText, font);
+                            var textRect = new PointF(
+                                buttonRect.X + (buttonRect.Width - textSize.Width) / 2,
+                                buttonRect.Y + (buttonRect.Height - textSize.Height) / 2);
+
+                            e.Graphics.DrawString(buttonText, font, brush, textRect);
+                        }
+                    }
+
+                    e.Handled = true;
                 }
             }
         }
 
         public event Action<Account>? OnAccountActionClicked;
         public event Action<Account>? OnAccountChanged;
+        public event Action<Account>? OnAccountRemoveClicked;
+        public event Action? OnAllAccountsCleared;
     }
 }

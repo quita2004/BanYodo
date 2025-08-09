@@ -1,4 +1,4 @@
-using BanYodo.Models;
+﻿using BanYodo.Models;
 
 namespace BanYodo.Forms.Controls
 {
@@ -24,7 +24,7 @@ namespace BanYodo.Forms.Controls
             // Title
             var titleLabel = new Label
             {
-                Text = "Purchase Mode",
+                Text = "Kiểu mua hàng",
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Location = new Point(10, 10),
                 Size = new Size(150, 20)
@@ -66,15 +66,6 @@ namespace BanYodo.Forms.Controls
                 Font = new Font("Segoe UI", 8)
             };
 
-            _scanIntervalLabel = new Label
-            {
-                Text = "Automatically scan for product availability",
-                Location = new Point(30, 90),
-                Size = new Size(250, 20),
-                Font = new Font("Segoe UI", 8),
-                ForeColor = Color.Gray
-            };
-
             // Fixed Time Mode
             _fixedTimeModeRadio = new RadioButton
             {
@@ -93,15 +84,6 @@ namespace BanYodo.Forms.Controls
                 Enabled = false
             };
 
-            var fixedTimeLabel = new Label
-            {
-                Text = "Purchase at specific time (HH:mm:ss)",
-                Location = new Point(30, 175),
-                Size = new Size(220, 20),
-                Font = new Font("Segoe UI", 8),
-                ForeColor = Color.Gray
-            };
-
             // Event handlers
             _scanModeRadio.CheckedChanged += ScanModeRadio_CheckedChanged;
             _fixedTimeModeRadio.CheckedChanged += FixedTimeModeRadio_CheckedChanged;
@@ -111,7 +93,7 @@ namespace BanYodo.Forms.Controls
             this.Controls.AddRange(new Control[]
             {
                 titleLabel, _scanModeRadio, scanIntervalLabel, _scanIntervalNumeric, 
-                secondsLabel, _scanIntervalLabel, _fixedTimeModeRadio, _fixedTimePicker, fixedTimeLabel
+                secondsLabel, _fixedTimeModeRadio, _fixedTimePicker
             });
         }
 

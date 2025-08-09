@@ -26,6 +26,11 @@ namespace BanYodo.Models
             }
         }
 
+        public void ClearAccounts()
+        {
+            Accounts.Clear();
+        }
+
         public void AddProductId(string productId)
         {
             if (!string.IsNullOrWhiteSpace(productId) && !ProductIds.Contains(productId))

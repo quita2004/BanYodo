@@ -119,6 +119,8 @@ public partial class MainForm : Form
         // Setup event handlers for child controls
         _accountDataGridView.OnAccountActionClicked += AccountDataGridView_OnAccountActionClicked;
         _accountDataGridView.OnAccountChanged += AccountDataGridView_OnAccountChanged;
+        _accountDataGridView.OnAccountRemoveClicked += AccountDataGridView_OnAccountRemoveClicked;
+        _accountDataGridView.OnAllAccountsCleared += AccountDataGridView_OnAllAccountsCleared;
         _purchaseModePanel.OnConfigurationChanged += PurchaseModePanel_OnConfigurationChanged;
         _productIdsPanel.OnProductIdsChanged += ProductIdsPanel_OnProductIdsChanged;
     }
@@ -170,6 +172,18 @@ public partial class MainForm : Form
             _accountDataGridView.RemoveAccount(selectedAccount);
 
             _ = Task.Run(async () => await _configurationService.SaveConfigurationAsync(_currentConfiguration));
+        }
+    }
+
+    private void ClearAllButton_Click(object? sender, EventArgs e)
+    {
+        var result = MessageBox.Show("Are you sure you want to clear all accounts?", "Confirm Clear All", 
+            MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        
+        if (result == DialogResult.Yes)
+        {
+            _currentConfiguration.ClearAccounts();
+            _accountDataGridView.ClearAllAccounts();
         }
     }
 
@@ -234,6 +248,19 @@ public partial class MainForm : Form
     }
 
     private async void AccountDataGridView_OnAccountChanged(Account account)
+    {
+        await _configurationService.SaveConfigurationAsync(_currentConfiguration);
+    }
+
+    private void AccountDataGridView_OnAccountRemoveClicked(Account account)
+    {
+        _currentConfiguration.RemoveAccount(account);
+        _accountDataGridView.RemoveAccount(account);
+
+        _ = Task.Run(async () => await _configurationService.SaveConfigurationAsync(_currentConfiguration));
+    }
+
+    private async void AccountDataGridView_OnAllAccountsCleared()
     {
         await _configurationService.SaveConfigurationAsync(_currentConfiguration);
     }

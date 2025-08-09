@@ -22,20 +22,10 @@ namespace BanYodo.Forms.Controls
             // Title
             var titleLabel = new Label
             {
-                Text = "Product IDs (Shared for all accounts)",
+                Text = "Product IDs",
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Location = new Point(10, 10),
                 Size = new Size(300, 20)
-            };
-
-            // Instructions
-            var instructionLabel = new Label
-            {
-                Text = "Enter one Product ID per line:",
-                Location = new Point(10, 35),
-                Size = new Size(200, 20),
-                Font = new Font("Segoe UI", 8),
-                ForeColor = Color.Gray
             };
 
             // Multi-line TextBox for Product IDs
@@ -74,7 +64,7 @@ namespace BanYodo.Forms.Controls
 
             this.Controls.AddRange(new Control[]
             {
-                titleLabel, instructionLabel, _productIdsTextBox, _countLabel, _saveButton
+                titleLabel, _productIdsTextBox, _countLabel, _saveButton
             });
         }
 
