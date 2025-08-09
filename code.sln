@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BanYodo", "src\BanYodo.csproj", "{7BD31974-B879-21D4-57FF-1C454350963D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7BD31974-B879-21D4-57FF-1C454350963D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BD31974-B879-21D4-57FF-1C454350963D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BD31974-B879-21D4-57FF-1C454350963D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BD31974-B879-21D4-57FF-1C454350963D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF1DC178-ED5E-42A0-B667-4519FB509AA7}
+	EndGlobalSection
+EndGlobal
