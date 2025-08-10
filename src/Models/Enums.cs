@@ -20,4 +20,14 @@ namespace BanYodo.Models
         Yodobashi,
         Fujifilm
     }
+
+    public enum FailedReason
+    {
+        None,
+        ProxyError,
+        PasswordIncorrect,
+        UnknownError,
+        AddCartFailed,
+        OutOfStock
+    }
 }

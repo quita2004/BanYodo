@@ -1,14 +1,19 @@
-using BanYodo.Models;
+﻿using BanYodo.Models;
 using BanYodo.Strategies;
+using PuppeteerSharp;
+using System.Security.Principal;
+using System.Windows.Forms;
 
 namespace BanYodo.Services
 {
     public class PurchaseController
     {
         private readonly PuppeteerService _puppeteerService;
+        private readonly LoggingService _loggingService;
         private readonly Dictionary<Website, IPurchaseStrategy> _strategies;
         private readonly Dictionary<string, CancellationTokenSource> _runningTasks;
         private readonly Dictionary<string, System.Threading.Timer> _scanTimers;
+        private readonly int timeRunBeforeSecond = 300;
 
         public event EventHandler<AccountStatusChangedEventArgs> AccountStatusChanged;
 
@@ -22,6 +27,7 @@ namespace BanYodo.Services
             };
             _runningTasks = new Dictionary<string, CancellationTokenSource>();
             _scanTimers = new Dictionary<string, System.Threading.Timer>();
+            _loggingService = new LoggingService();
         }
 
         public async Task StartAccountAsync(Account account, Configuration config, int scanIntervalSeconds = 5)
@@ -31,6 +37,7 @@ namespace BanYodo.Services
 
             account.IsRunning = true;
             account.Status = AccountStatus.Running;
+            account.StatusText = "Bắt đầu...";
             OnAccountStatusChanged(account);
 
             var accountKey = GetAccountKey(account);
@@ -40,17 +47,7 @@ namespace BanYodo.Services
             try
             {
                 // Launch browser for this account
-                var accountId = await _puppeteerService.LaunchBrowserForAccountAsync(account);
-                await _puppeteerService.NavigateToWebsiteAsync(accountId, config.SelectedWebsite);
-
-                if (config.PurchaseMode == PurchaseMode.FixedTime)
-                {
-                    await StartFixedTimeModeAsync(account, config, accountId, cancellationTokenSource.Token);
-                }
-                else
-                {
-                    await StartScanModeAsync(account, config, accountId, scanIntervalSeconds, cancellationTokenSource.Token);
-                }
+                await ExecutePurchaseAsync(account, config);
             }
             catch (Exception ex)
             {
@@ -58,13 +55,14 @@ namespace BanYodo.Services
                 account.IsRunning = false;
                 OnAccountStatusChanged(account);
                 // Log error
+                _loggingService.LogError("StartAccountAsync", ex);
             }
         }
 
         public async Task StopAccountAsync(Account account)
         {
             var accountKey = GetAccountKey(account);
-            
+
             if (_runningTasks.ContainsKey(accountKey))
             {
                 _runningTasks[accountKey].Cancel();
@@ -98,99 +96,142 @@ namespace BanYodo.Services
             await Task.WhenAll(tasks);
         }
 
-        private async Task StartFixedTimeModeAsync(Account account, Configuration config, string accountId, CancellationToken cancellationToken)
+        private async Task ExecutePurchaseAsync(Account account, Configuration config)
         {
             try
             {
-                if (config.FixedTime.HasValue)
+                if (config.PurchaseMode == PurchaseMode.ScanMode)
                 {
-                    var delay = config.FixedTime.Value - DateTime.Now;
-                    if (delay > TimeSpan.Zero)
-                    {
-                        await Task.Delay(delay, cancellationToken);
-                    }
+                    // Scan mode: check product availability periodically
                 }
-
-                if (!cancellationToken.IsCancellationRequested)
+                else
                 {
-                    await ExecutePurchaseAsync(account, config, accountId);
+                    // Fixed time purchase mode
+                    await ExecuteFixedPurchaseAsync(account, config);
                 }
             }
-            catch (OperationCanceledException)
+            catch (Exception ex)
             {
-                // Task was cancelled
+                _loggingService.LogError("ExecutePurchaseAsync", ex);
             }
         }
 
-        private async Task StartScanModeAsync(Account account, Configuration config, string accountId, int scanIntervalSeconds, CancellationToken cancellationToken)
+        private async Task ExecuteFixedPurchaseAsync(Account account, Configuration config)
         {
-            var accountKey = GetAccountKey(account);
-            
-            var timer = new System.Threading.Timer(async _ => 
-            {
-                if (!cancellationToken.IsCancellationRequested && account.IsRunning)
-                {
-                    await ExecutePurchaseAsync(account, config, accountId);
-                }
-            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(scanIntervalSeconds));
-
-            _scanTimers[accountKey] = timer;
-
+            IBrowser? browser = null;
             try
             {
-                // Keep the task alive until cancelled
-                await Task.Delay(Timeout.Infinite, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                timer?.Dispose();
-            }
-        }
+                // Đợi đến trước thời gian mua hàng 5 phút để login trước
+                await WaitToFixedTime(config, timeRunBeforeSecond * -1);
 
-        private async Task ExecutePurchaseAsync(Account account, Configuration config, string accountId)
-        {
-            try
-            {
+                var accountId = await _puppeteerService.LaunchBrowserForAccountAsync(account);
+
                 var strategy = _strategies[config.SelectedWebsite];
                 var page = _puppeteerService.GetPageForAccount(accountId);
-                
+                browser = _puppeteerService.GetBrowserForAccount(accountId);
+
                 if (page == null)
                     return;
 
                 // Login if not already logged in
-                if (!await strategy.IsLoggedInAsync(page))
+                UpdateStatus(account, "Đang đăng nhập");
+                (bool loginSuccess, FailedReason code) = await strategy.LoginAsync(page, browser, account);
+                if (!loginSuccess)
                 {
-                    if (!await strategy.LoginAsync(page, account))
+                    var message = code switch
                     {
-                        account.Status = AccountStatus.Failed;
-                        OnAccountStatusChanged(account);
-                        return;
-                    }
+                        FailedReason.PasswordIncorrect => "Sai mk hoặc ip bị chặn login",
+                        FailedReason.ProxyError => "Proxy lỗi",
+                        FailedReason.UnknownError => "Lỗi chưa xác định",
+                        _ => "Login failed"
+                    };
+                    account.Status = AccountStatus.Failed;
+                    UpdateStatus(account, message);
+                    return;
                 }
+                UpdateStatus(account, "Login xong, đang chờ...");
+                // Khi login xong, đợi đến tg mua hàng
+                await WaitToFixedTime(config);
+                UpdateStatus(account, "Bắt đầu mua hàng");
+                var productIds = config.ProductIds;
+                (bool purchaseSuccess, FailedReason purchaseCode) = await strategy.PurchaseProductAsync(page, productIds, account, config, 1);
+                account.Status = purchaseSuccess ? AccountStatus.Success : AccountStatus.Failed;
+                var messagePurchase = purchaseCode switch
+                {
+                    FailedReason.OutOfStock => "Sản phẩm không còn hàng",
+                    FailedReason.UnknownError => "Lỗi chưa xác định",
+                    _ => "Purchase failed"
+                };
+                messagePurchase = purchaseSuccess ? "Mua hàng thành công" : messagePurchase;
+                account.StatusText = messagePurchase;
+                OnAccountStatusChanged(account);
 
-                // Try to purchase each product
-                foreach (var productId in config.ProductIds)
-                {
-                    if (await strategy.CheckProductAvailabilityAsync(page, productId))
-                    {
-                        if (await strategy.PurchaseProductAsync(page, productId, account))
-                        {
-                            account.Status = AccountStatus.Success;
-                            OnAccountStatusChanged(account);
-                            
-                            // Stop this account after successful purchase
-                            await StopAccountAsync(account);
-                            return;
-                        }
-                    }
-                }
+                // Stop this account after successful purchase
+                await StopAccountAsync(account);
+                return;
             }
             catch (Exception ex)
             {
                 account.Status = AccountStatus.Failed;
                 OnAccountStatusChanged(account);
                 // Log error
+                _loggingService.LogError("ExecutePurchaseAsync", ex);
             }
+            finally
+            {
+                try
+                {
+                    if (browser != null)
+                    {
+                        await browser.CloseAsync();
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private async Task WaitToFixedTime(Configuration config, int? time = null)
+        {
+            if (!config.FixedTime.HasValue)
+            {
+                return;
+            }
+
+            var fixedDate = new DateTime(
+                DateTime.Now.Year,
+                DateTime.Now.Month,
+                DateTime.Now.Day,
+                config.FixedTime.Value.Hour,
+                config.FixedTime.Value.Minute,
+                config.FixedTime.Value.Second
+            );
+
+            if (time.HasValue)
+            {
+                fixedDate = fixedDate.AddSeconds(time.Value);
+            }
+
+            var timeDelay = fixedDate - DateTime.Now;
+            await Task.Delay(timeDelay > TimeSpan.Zero ? timeDelay : TimeSpan.Zero);
+        }
+
+        private async Task<List<string>> WaitToProductsAvailable(Configuration config)
+        {
+            var delay = config.ScanSecond.HasValue ? config.ScanSecond.Value * 1000 : 5000;
+            while (true)
+            {
+                // TODO: check product availability
+                await Task.Delay((int)delay);
+                break;
+            }
+
+            return config.ProductIds;
+        }
+
+        private void UpdateStatus(Account account, string message)
+        {
+            account.StatusText = message;
+            OnAccountStatusChanged(account);
         }
 
         private string GetAccountKey(Account account)
@@ -209,12 +250,12 @@ namespace BanYodo.Services
             {
                 timer?.Dispose();
             }
-            
+
             foreach (var cts in _runningTasks.Values)
             {
                 cts?.Cancel();
             }
-            
+
             _scanTimers.Clear();
             _runningTasks.Clear();
         }

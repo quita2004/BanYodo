@@ -28,13 +28,19 @@ namespace BanYodo.Services
 
         public void LogError(string message, Exception? exception = null, string? context = null)
         {
-            var fullMessage = exception != null ? $"{message} | Exception: {exception}" : message;
+            var fullMessage = exception != null ? $"{message} | Exception: {exception.Message}\n{exception.StackTrace}" : message;
             WriteLog("ERROR", fullMessage, context);
         }
 
         public void LogDebug(string message, string? context = null)
         {
             WriteLog("DEBUG", message, context);
+        }
+
+        public string GetCurrentTime()
+        {
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            return $"[{timestamp}]";
         }
 
         private void WriteLog(string level, string message, string? context)
@@ -45,7 +51,7 @@ namespace BanYodo.Services
                 {
                     var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
                     var contextInfo = !string.IsNullOrEmpty(context) ? $" [{context}]" : "";
-                    var logEntry = $"{timestamp} [{level}]{contextInfo} {message}";
+                    var logEntry = $"[{timestamp}] [{level}]{contextInfo} {message}";
                     
                     File.AppendAllText(_logFilePath, logEntry + Environment.NewLine);
                 }

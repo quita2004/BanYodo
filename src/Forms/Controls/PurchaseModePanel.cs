@@ -9,7 +9,6 @@ namespace BanYodo.Forms.Controls
         private RadioButton _fixedTimeModeRadio = null!;
         private DateTimePicker _fixedTimePicker = null!;
         private NumericUpDown _scanIntervalNumeric = null!;
-        private Label _scanIntervalLabel = null!;
 
         public PurchaseModePanel()
         {
@@ -18,24 +17,24 @@ namespace BanYodo.Forms.Controls
 
         private void InitializeComponent()
         {
-            this.Size = new Size(300, 250);
+            this.Size = new Size(300, 180);
             this.BorderStyle = BorderStyle.FixedSingle;
 
             // Title
             var titleLabel = new Label
             {
                 Text = "Kiểu mua hàng",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Location = new Point(10, 10),
-                Size = new Size(150, 20)
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Location = new Point(10, 8),
+                Size = new Size(120, 18)
             };
 
             // Scan Mode
             _scanModeRadio = new RadioButton
             {
                 Text = "Scan Mode",
-                Location = new Point(10, 40),
-                Size = new Size(100, 20),
+                Location = new Point(10, 30),
+                Size = new Size(100, 18),
                 Checked = true
             };
 
@@ -43,15 +42,15 @@ namespace BanYodo.Forms.Controls
             var scanIntervalLabel = new Label
             {
                 Text = "Scan every:",
-                Location = new Point(30, 65),
-                Size = new Size(80, 20),
+                Location = new Point(30, 50),
+                Size = new Size(70, 18),
                 Font = new Font("Segoe UI", 8)
             };
 
             _scanIntervalNumeric = new NumericUpDown
             {
-                Location = new Point(115, 63),
-                Size = new Size(60, 20),
+                Location = new Point(105, 48),
+                Size = new Size(50, 20),
                 Minimum = 1,
                 Maximum = 300,
                 Value = 5,
@@ -61,8 +60,8 @@ namespace BanYodo.Forms.Controls
             var secondsLabel = new Label
             {
                 Text = "seconds",
-                Location = new Point(185, 65),
-                Size = new Size(50, 20),
+                Location = new Point(160, 50),
+                Size = new Size(50, 18),
                 Font = new Font("Segoe UI", 8)
             };
 
@@ -70,8 +69,8 @@ namespace BanYodo.Forms.Controls
             _fixedTimeModeRadio = new RadioButton
             {
                 Text = "Fixed Time Mode",
-                Location = new Point(10, 120),
-                Size = new Size(150, 20)
+                Location = new Point(10, 85),
+                Size = new Size(130, 18)
             };
 
             _fixedTimePicker = new DateTimePicker
@@ -79,8 +78,8 @@ namespace BanYodo.Forms.Controls
                 Format = DateTimePickerFormat.Custom,
                 CustomFormat = "HH:mm:ss",
                 ShowUpDown = true,
-                Location = new Point(30, 145),
-                Size = new Size(100, 25),
+                Location = new Point(30, 105),
+                Size = new Size(90, 23),
                 Enabled = false
             };
 
@@ -117,6 +116,9 @@ namespace BanYodo.Forms.Controls
                 _scanModeRadio.Checked = true;
                 _fixedTimePicker.Enabled = false;
                 _scanIntervalNumeric.Enabled = true;
+                _scanIntervalNumeric.Value = configuration.ScanSecond.HasValue 
+                    ? (decimal)configuration.ScanSecond.Value 
+                    : 5; // Default value if not set
             }
         }
 
@@ -158,6 +160,11 @@ namespace BanYodo.Forms.Controls
             {
                 // Store scan interval in configuration if needed
                 OnConfigurationChanged?.Invoke();
+                _configuration.ScanSecond = (uint)_scanIntervalNumeric.Value;
+                if (_configuration.ScanSecond < 1)
+                {
+                    _configuration.ScanSecond = 1; // Ensure minimum value
+                }
             }
         }
 

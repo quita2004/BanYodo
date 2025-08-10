@@ -22,8 +22,8 @@ public partial class MainForm : Form
 
         _configurationService = new ConfigurationService();
         _puppeteerService = new PuppeteerService();
-        _purchaseController = new PurchaseController(_puppeteerService);
         _loggingService = new LoggingService();
+        _purchaseController = new PurchaseController(_puppeteerService);
 
         _currentConfiguration = new Configuration();
 

@@ -154,9 +154,13 @@ namespace BanYodo.Services
             }
         }
 
-        public IPage GetPageForAccount(string accountId)
+        public IPage? GetPageForAccount(string accountId)
         {
             return _pages.ContainsKey(accountId) ? _pages[accountId] : null;
+        }
+        public IBrowser? GetBrowserForAccount(string accountId)
+        {
+            return _browsers.ContainsKey(accountId) ? _browsers[accountId] : null;
         }
 
         public bool HasActiveBrowser(string accountId)

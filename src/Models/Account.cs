@@ -16,6 +16,9 @@ namespace BanYodo.Models
         public AccountStatus Status { get; set; } = AccountStatus.Ready;
         
         [JsonIgnore]
+        public string StatusText { get; set; } = string.Empty;
+        
+        [JsonIgnore]
         public bool IsRunning { get; set; } = false;
 
         public string GetAccountInfo()

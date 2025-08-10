@@ -179,7 +179,7 @@ partial class MainForm
         mainTableLayoutPanel.Name = "mainTableLayoutPanel";
         mainTableLayoutPanel.RowCount = 3;
         mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-        mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 230F));
+        mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 190F));
         mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         mainTableLayoutPanel.Size = new Size(1200, 658);
         mainTableLayoutPanel.TabIndex = 0;

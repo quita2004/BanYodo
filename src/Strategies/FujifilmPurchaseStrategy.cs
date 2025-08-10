@@ -8,13 +8,6 @@ namespace BanYodo.Strategies
     {
         public Website SupportedWebsite => Website.Fujifilm;
 
-        public async Task<bool> LoginAsync(IPage page, Account account)
-        {
-            // Placeholder implementation for future development
-            await Task.Delay(100);
-            throw new NotImplementedException("Fujifilm purchase strategy is not yet implemented");
-        }
-
         public async Task<bool> CheckProductAvailabilityAsync(IPage page, string productId)
         {
             // Placeholder implementation for future development
@@ -22,18 +15,19 @@ namespace BanYodo.Strategies
             throw new NotImplementedException("Fujifilm purchase strategy is not yet implemented");
         }
 
-        public async Task<bool> PurchaseProductAsync(IPage page, string productId, Account account)
+        Task<(bool, FailedReason)> IPurchaseStrategy.LoginAsync(IPage page, IBrowser browser, Account account)
         {
-            // Placeholder implementation for future development
-            await Task.Delay(100);
-            throw new NotImplementedException("Fujifilm purchase strategy is not yet implemented");
+            throw new NotImplementedException();
         }
 
-        public async Task<bool> IsLoggedInAsync(IPage page)
+        public Task<(bool, FailedReason)> PurchaseProductAsync(IPage page, List<string> productIds, Account account, Configuration configuration, int amount = 1)
         {
-            // Placeholder implementation for future development
-            await Task.Delay(100);
-            throw new NotImplementedException("Fujifilm purchase strategy is not yet implemented");
+            throw new NotImplementedException();
+        }
+
+        bool IPurchaseStrategy.IsLoggedInAsync(IPage page)
+        {
+            throw new NotImplementedException();
         }
     }
 }

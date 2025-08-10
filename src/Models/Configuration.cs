@@ -9,6 +9,7 @@ namespace BanYodo.Models
         public PurchaseMode PurchaseMode { get; set; } = PurchaseMode.ScanMode;
         public Website SelectedWebsite { get; set; } = Website.Yodobashi;
         public DateTime? FixedTime { get; set; }
+        public uint? ScanSecond { get; set; }
 
         public void AddAccount(Account account)
         {

@@ -16,16 +16,16 @@ namespace BanYodo.Forms.Controls
 
         private void InitializeComponent()
         {
-            this.Size = new Size(400, 250);
+            this.Size = new Size(400, 180);
             this.BorderStyle = BorderStyle.FixedSingle;
 
             // Title
             var titleLabel = new Label
             {
                 Text = "Product IDs",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Location = new Point(10, 10),
-                Size = new Size(300, 20)
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Location = new Point(10, 8),
+                Size = new Size(100, 18)
             };
 
             // Multi-line TextBox for Product IDs
@@ -33,9 +33,9 @@ namespace BanYodo.Forms.Controls
             {
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical,
-                Location = new Point(10, 60),
-                Size = new Size(370, 120),
-                Font = new Font("Consolas", 9),
+                Location = new Point(10, 30),
+                Size = new Size(370, 100),
+                Font = new Font("Consolas", 8),
                 PlaceholderText = "PROD001\nPROD002\nPROD003"
             };
 
@@ -43,8 +43,8 @@ namespace BanYodo.Forms.Controls
             _countLabel = new Label
             {
                 Text = "0 Product IDs",
-                Location = new Point(10, 190),
-                Size = new Size(150, 20),
+                Location = new Point(10, 140),
+                Size = new Size(150, 18),
                 Font = new Font("Segoe UI", 8),
                 ForeColor = Color.Blue
             };
@@ -53,8 +53,8 @@ namespace BanYodo.Forms.Controls
             _saveButton = new Button
             {
                 Text = "Save",
-                Location = new Point(305, 187),
-                Size = new Size(75, 25),
+                Location = new Point(305, 137),
+                Size = new Size(75, 23),
                 UseVisualStyleBackColor = true
             };
 

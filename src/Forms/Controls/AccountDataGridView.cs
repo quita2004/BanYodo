@@ -41,7 +41,7 @@ namespace BanYodo.Forms.Controls
             {
                 Name = "AccountCard",
                 HeaderText = "Username Password Card Month Year CVV",
-                Width = 500
+                Width = 400
             };
 
             // Proxy column
@@ -49,15 +49,15 @@ namespace BanYodo.Forms.Controls
             {
                 Name = "Proxy",
                 HeaderText = "Proxy",
-                Width = 300
+                Width = 250
             };
 
             // Status column
             var statusColumn = new DataGridViewTextBoxColumn
             {
-                Name = "Status",
+                Name = "StatusText",
                 HeaderText = "Status",
-                Width = 100,
+                Width = 200,
                 ReadOnly = true
             };
 
@@ -134,7 +134,7 @@ namespace BanYodo.Forms.Controls
             {
                 if (row.Tag == account)
                 {
-                    row.Cells["Status"].Value = account.Status.ToString();
+                    row.Cells["StatusText"].Value = account.StatusText;
                     row.Cells["Action"].Value = account.IsRunning ? "Stop" : "Start";
                     
                     // Invalidate the action cell to trigger repaint
@@ -162,7 +162,7 @@ namespace BanYodo.Forms.Controls
 
                 row.Cells["AccountCard"].Value = accountCardInfo;
                 row.Cells["Proxy"].Value = account.Proxy;
-                row.Cells["Status"].Value = account.Status.ToString();
+                row.Cells["StatusText"].Value = account.StatusText;
                 row.Cells["Action"].Value = account.IsRunning ? "Stop" : "Start";
 
                 // Store reference to account in Tag
@@ -222,7 +222,7 @@ namespace BanYodo.Forms.Controls
                 }
                 
                 // Update status and action cells for new account
-                row.Cells["Status"].Value = account.Status.ToString();
+                row.Cells["StatusText"].Value = account.StatusText;
                 row.Cells["Action"].Value = account.IsRunning ? "Stop" : "Start";
                 
                 // Invalidate cells to trigger repaint
