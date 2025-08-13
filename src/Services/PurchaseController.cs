@@ -122,7 +122,7 @@ namespace BanYodo.Services
             try
             {
                 // Đợi đến trước thời gian mua hàng 5 phút để login trước
-                await WaitToFixedTime(config, timeRunBeforeSecond * -1);
+                //await WaitToFixedTime(config, timeRunBeforeSecond * -1);
 
                 var accountId = await _puppeteerService.LaunchBrowserForAccountAsync(account);
 
@@ -151,10 +151,16 @@ namespace BanYodo.Services
                 }
                 UpdateStatus(account, "Login xong, đang chờ...");
                 // Khi login xong, đợi đến tg mua hàng
-                await WaitToFixedTime(config);
+
+                //await WaitToFixedTime(config);
+
                 UpdateStatus(account, "Bắt đầu mua hàng");
                 var productIds = config.ProductIds;
-                (bool purchaseSuccess, FailedReason purchaseCode) = await strategy.PurchaseProductAsync(page, productIds, account, config, 1);
+
+                //(bool purchaseSuccess, FailedReason purchaseCode) = await strategy.PurchaseProductAsync(page, productIds, account, config, 1);
+
+                (bool purchaseSuccess, FailedReason purchaseCode) = (true, FailedReason.None); // Simulate purchase success for testing
+
                 account.Status = purchaseSuccess ? AccountStatus.Success : AccountStatus.Failed;
                 var messagePurchase = purchaseCode switch
                 {

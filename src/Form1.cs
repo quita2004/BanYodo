@@ -211,9 +211,6 @@ public partial class MainForm : Form
 
         _accountDataGridView.RefreshAccountStatus(e.Account);
         _loggingService.LogInfo($"Account {e.Account.Username} status changed to {e.Account.Status}");
-
-        // Update status bar
-        statusLabel.Text = $"Account {e.Account.Username}: {e.Account.Status}";
     }
 
     private async void AccountDataGridView_OnAccountActionClicked(Account account)
