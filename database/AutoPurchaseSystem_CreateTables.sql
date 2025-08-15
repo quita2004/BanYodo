@@ -1,6 +1,6 @@
 ﻿-- ===============================
--- File: AutoPurchaseSystem_Tables.sql
--- Purpose: Drop & Create Tables
+-- File: AutoPurchaseSystem_Tables_Updated.sql
+-- Purpose: Drop & Create Tables (with LAST_LOGOUT_AT)
 -- ===============================
 
 IF DB_ID('AUTO_PURCHASE_SYSTEM') IS NULL
@@ -45,6 +45,7 @@ CREATE TABLE T_LICENSE_ASSIGNMENTS (
     CLIENT_ID UNIQUEIDENTIFIER NOT NULL,
     IS_LOGGED_IN BIT DEFAULT 0,
     LAST_LOGIN_AT DATETIME NULL,
+    LAST_LOGOUT_AT DATETIME NULL,
     ASSIGNED_AT DATETIME DEFAULT GETUTCDATE(),
     FOREIGN KEY (LICENSE_ID) REFERENCES T_LICENSES(LICENSE_ID) ON DELETE CASCADE,
     FOREIGN KEY (CLIENT_ID) REFERENCES T_CLIENTS(CLIENT_ID) ON DELETE CASCADE
