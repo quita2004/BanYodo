@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -13,6 +14,7 @@ public class LicenseService
 
     public async Task<string?> LoginByLicenseAsync(string licenseKey)
     {
+        Log.Warning("Attempting to login with license key: {LicenseKey}", licenseKey);
         using var conn = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
         var licenseId = await conn.QueryFirstOrDefaultAsync<Guid?>(
             "SP_CLIENT_PRELOGIN",

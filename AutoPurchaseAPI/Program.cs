@@ -1,13 +1,24 @@
+﻿global using AutoPurchaseAPI.Services;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.IdentityModel.Tokens;
 global using System.Text;
-global using AutoPurchaseAPI.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+using AutoPurchaseAPI.DTOs;
 using AutoPurchaseAPI.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ======================
+// Cấu hình Serilog
+// ======================
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services
 builder.Services.AddSingleton<LicenseService>();
@@ -41,9 +52,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // -------------------- Client login --------------------
-app.MapPost("/api/client/login", async (string licenseKey, LicenseService service) =>
+app.MapPost("/api/client/login", async (ClientLoginRequest request, LicenseService service) =>
 {
-    var token = await service.LoginByLicenseAsync(licenseKey);
+    var token = await service.LoginByLicenseAsync(request.LicenseKey);
     return token is null ? Results.Unauthorized() : Results.Ok(new { token });
 });
 
@@ -70,6 +81,12 @@ app.MapDelete("/api/admin/licenses/{id}", [Microsoft.AspNetCore.Authorization.Au
 {
     var deleted = await service.DeleteLicenseAsync(id);
     return deleted ? Results.Ok() : Results.NotFound();
+});
+
+app.MapPost("/api/admin/login", async (AdminLoginRequest request, AdminService service) =>
+{
+    var token = await service.LoginAsync(request.Username, request.Password);
+    return token is null ? Results.Unauthorized() : Results.Ok(new { token });
 });
 
 app.Run();

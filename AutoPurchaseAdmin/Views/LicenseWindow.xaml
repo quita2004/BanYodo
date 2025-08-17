@@ -1,0 +1,23 @@
+﻿<Window x:Class="AutoPurchaseAdmin.Views.LicenseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="License Management" Height="450" Width="800">
+    <Grid Margin="10">
+        <StackPanel>
+            <Button Content="Load Licenses" Command="{Binding LoadCommand}" Width="120" Margin="0,5"/>
+            <DataGrid ItemsSource="{Binding Licenses}" SelectedItem="{Binding SelectedLicense}" AutoGenerateColumns="False" Height="300" Margin="0,5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Key" Binding="{Binding LicenseKey}" />
+                    <DataGridTextColumn Header="Created" Binding="{Binding CreatedAt}" />
+                    <DataGridTextColumn Header="Expired" Binding="{Binding ExpiredAt}" />
+                    <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <Button Content="Add" Command="{Binding AddCommand}" Width="60" Margin="5,0"/>
+                <Button Content="Update" Command="{Binding UpdateCommand}" Width="60" Margin="5,0"/>
+                <Button Content="Delete" Command="{Binding DeleteCommand}" Width="60" Margin="5,0"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PFJAutoBuy", "src\PFJAutoBu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPurchaseAPI", "AutoPurchaseAPI\AutoPurchaseAPI.csproj", "{9B93CBC8-F0D7-073C-BBB3-5DC32954B9AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPurchaseSystem.ApiClient", "AutoPurchaseSystem.ApiClient\AutoPurchaseSystem.ApiClient.csproj", "{7CCBBDF4-D372-45D1-AA5E-0A833D19F4A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPurchaseAdmin", "AutoPurchaseAdmin\AutoPurchaseAdmin.csproj", "{0A0643B3-750A-4956-B9EB-3BCF3A4BC5D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,14 @@ Global
 		{9B93CBC8-F0D7-073C-BBB3-5DC32954B9AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B93CBC8-F0D7-073C-BBB3-5DC32954B9AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B93CBC8-F0D7-073C-BBB3-5DC32954B9AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CCBBDF4-D372-45D1-AA5E-0A833D19F4A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CCBBDF4-D372-45D1-AA5E-0A833D19F4A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CCBBDF4-D372-45D1-AA5E-0A833D19F4A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CCBBDF4-D372-45D1-AA5E-0A833D19F4A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A0643B3-750A-4956-B9EB-3BCF3A4BC5D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A0643B3-750A-4956-B9EB-3BCF3A4BC5D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A0643B3-750A-4956-B9EB-3BCF3A4BC5D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A0643B3-750A-4956-B9EB-3BCF3A4BC5D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

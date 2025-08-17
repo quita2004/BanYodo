@@ -1,6 +1,8 @@
 ﻿using AutoPurchaseAPI.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace AutoPurchaseAPI.Services;
 
@@ -45,5 +47,36 @@ public class AdminService
             new { LICENSE_ID = id },
             commandType: System.Data.CommandType.StoredProcedure);
         return rows > 0;
+    }
+
+    public async Task<string?> LoginAsync(string username, string password)
+    {
+        using var conn = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+
+        var adminId = await conn.QueryFirstOrDefaultAsync<Guid?>(
+            "SP_ADMIN_LOGIN",
+            new { USERNAME = username, PASSWORD = password },
+            commandType: System.Data.CommandType.StoredProcedure);
+
+        if (adminId is null) return null;
+
+        // Tạo JWT
+        var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim("username", username),
+                new Claim("role", "Admin")
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiresMinutes"] ?? "60")),
+            Issuer = _config["Jwt:Issuer"],
+            Audience = _config["Jwt:Audience"],
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
